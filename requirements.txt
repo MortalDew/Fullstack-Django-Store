@@ -1,0 +1,8 @@
+# Core framework
+Django==5.0.7
+
+# PostgreSQL driver
+psycopg2-binary==2.9.9
+
+# Images for ImageField
+Pillow==10.4.0

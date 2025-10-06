@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD=password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports: ["5432:5432"]
+    command: -p 5432
+    networks: [db_network]
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./
+    image: golddecor
+    ports: ["9984:9984"]
+    volumes:
+      - ./:/api
+    command: python manage.py runserver 0.0.0.0:9984
+    networks: [api_network, db_network, redis_network]
+    depends_on: [db, redis]
+
+  redis:
+    image: redis:7.0.8
+    ports: ["6379:6379"]
+    networks: [redis_network]
+
+volumes:
+  db_volume:
+
+networks:
+  db_network:
+  api_network:
+  redis_network:
