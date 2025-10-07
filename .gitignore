@@ -223,3 +223,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 static
+.vscode/settings.json
+task.md
