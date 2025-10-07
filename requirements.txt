@@ -12,3 +12,4 @@ django-cors-headers==4.9.0
 drf-spectacular==0.28.0
 django-filter==25.2
 django-storages[google]==1.14.2
+django-redis==5.4.0

@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "app.catalog",
+    "app.cart",
 ]
 
 MIDDLEWARE = [
@@ -44,7 +45,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "app.cart.context_processors.cart_item_count",
+                "app.cart.context_processors.cart_item_count.cart_item_count",
             ],
         },
     },
@@ -63,6 +64,22 @@ DATABASES = {
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
+
+# Caching (Redis)
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": os.environ.get("CACHE_KEY_PREFIX", "golddecor"),
+        "TIMEOUT": int(os.environ.get("CACHE_TIMEOUT", "300")),
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 LANGUAGE_CODE = "ru-ru"
 TIME_ZONE = "Europe/Moscow"
