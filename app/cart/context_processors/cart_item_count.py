@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from .models import CartItem
+from ..models import CartItem
 
 
 def cart_item_count(request):

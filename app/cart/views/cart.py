@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from app.catalog.models import Product
-from .models import CartItem
+from ..models import CartItem
 
 __all__ = ["cart_add", "cart_update", "cart_remove", "cart_detail"]
 

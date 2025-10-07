@@ -1,1 +1,1 @@
-from crm_item import *
+from .crm_item import *

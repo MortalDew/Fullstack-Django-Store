@@ -1,35 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Корзина{% endblock %}
 {% block content %}
-<h1>Корзина</h1>
+<h1 class="h3 mb-3">Корзина</h1>
 {% if items %}
-<table>
+<table class="table align-middle">
   <thead>
     <tr>
-      <th>Товар</th>
-      <th>Цена</th>
-      <th>Количество</th>
-      <th>Сумма</th>
-      <th></th>
+      <th scope="col">Товар</th>
+      <th scope="col">Цена</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Сумма</th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
     {% for item in items %}
     <tr>
-      <td><a href="{% url 'product_detail' item.product.pk %}">{{ item.product.name }}</a> <small>(в наличии: {{ item.stock }})</small></td>
+      <td><a href="{% url 'product_detail' item.product.pk %}">{{ item.product.name }}</a> <small class="text-muted">(в наличии: {{ item.stock }})</small></td>
       <td>{{ item.price }} ₽</td>
       <td>
-        <form method="post" action="{% url 'cart_update' item.product.pk %}">
+        <form method="post" action="{% url 'cart_update' item.product.pk %}" class="d-flex gap-2">
           {% csrf_token %}
-          <input type="number" min="0" max="{{ item.stock }}" name="quantity" value="{{ item.quantity }}" style="width:72px;">
-          <button type="submit">Обновить</button>
+          <input type="number" min="0" max="{{ item.stock }}" name="quantity" value="{{ item.quantity }}" class="form-control" style="max-width:90px;">
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Обновить</button>
         </form>
       </td>
       <td>{{ item.line_total }} ₽</td>
       <td>
-        <form method="post" action="{% url 'cart_remove' item.product.pk %}">
+        <form method="post" action="{% url 'cart_remove' item.product.pk %}" class="d-inline">
           {% csrf_token %}
-          <button type="submit">Удалить</button>
+          <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
         </form>
       </td>
     </tr>
@@ -37,20 +37,20 @@
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="3" style="text-align:right;">Итого:</td>
-      <td colspan="2">{{ total }} ₽</td>
+      <td colspan="3" class="text-end">Итого:</td>
+      <td colspan="2" class="fw-bold">{{ total }} ₽</td>
     </tr>
   </tfoot>
 </table>
 
-<form method="post" action="">
+<form method="post" action="" class="mt-3">
   {% csrf_token %}
-  <label>Примечание (не сохраняется):</label><br>
-  <textarea name="note" rows="3" style="width:100%;">{{ note }}</textarea>
-  <div><button type="submit">Обновить примечание</button></div>
+  <label class="form-label">Примечание (не сохраняется):</label>
+  <textarea name="note" rows="3" class="form-control">{{ note }}</textarea>
+  <div class="d-flex mt-3 justify-content-end"><button type="submit" class="btn btn-success">Перейти к оформлению</button></div>
 </form>
 
 {% else %}
-<p>Корзина пуста.</p>
+<div class="alert alert-info">Корзина пуста.</div>
 {% endif %}
 {% endblock %}
