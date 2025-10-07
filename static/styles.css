@@ -8,61 +8,15 @@ body {
     color: #111;
 }
 
-header nav {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
-}
+/* Keep minimal overrides; Bootstrap handles nav styling */
 
-header nav a {
-    color: #06c;
-    text-decoration: none;
-}
+/* main container spacing is now handled by Bootstrap */
 
-main {
-    padding: 16px;
-    max-width: 1100px;
-    margin: 0 auto;
-}
+/* Let Bootstrap style buttons */
 
-button {
-    background: #06c;
-    color: #fff;
-    border: 0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-}
+/* Let Bootstrap style forms */
 
-button[disabled] {
-    background: #888;
-    cursor: not-allowed;
-}
-
-input,
-textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    border: 1px solid #eee;
-    padding: 8px;
-    text-align: left;
-}
-
-thead {
-    background: #fafafa;
-}
+/* Tables are styled by Bootstrap */
 
 .active {
     font-weight: 700;

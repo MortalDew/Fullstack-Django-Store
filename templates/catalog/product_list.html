@@ -1,53 +1,57 @@
 {% extends "base.html" %}
 {% block title %}Товары{% endblock %}
 {% block content %}
-<div style="display:flex;gap:24px;align-items:flex-start;">
-    <aside style="min-width:220px;">
-        <form method="get" action="" style="margin-bottom:16px;display:flex;gap:8px;">
-            <input type="text" name="q" value="{{ query }}" placeholder="Поиск...">
-            <button type="submit">Искать</button>
+<div class="row g-4">
+    <aside class="col-12 col-md-3">
+        <form method="get" action="" class="d-flex gap-2 mb-3">
+            <input type="text" name="q" value="{{ query }}" placeholder="Поиск..." class="form-control">
+            <button type="submit" class="btn btn-primary">Искать</button>
         </form>
         <nav>
-            <ul>
-                <li><a href="{% url 'product_list' %}" class="{% if not selected_category %}active{% endif %}">Все</a></li>
+            <div class="list-group">
+                <a href="{% url 'product_list' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">Все</a>
                 {% for cat in categories %}
-                    <li>
-                        <a href="{% url 'product_list_by_category' cat.slug %}" class="{% if selected_category and selected_category.pk == cat.pk %}active{% endif %}">{{ cat.name }}</a>
-                    </li>
+                    <a href="{% url 'product_list_by_category' cat.slug %}" class="list-group-item list-group-item-action {% if selected_category and selected_category.pk == cat.pk %}active{% endif %}">{{ cat.name }}</a>
                 {% endfor %}
-            </ul>
+            </div>
         </nav>
     </aside>
-    <section style="flex:1;">
+    <section class="col-12 col-md-9">
         {% if page_obj.object_list %}
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+        <div class="row row-cols-2 row-cols-md-4 g-3">
             {% for p in page_obj.object_list %}
-                <article style="border:1px solid #ddd;padding:12px;border-radius:8px;">
-                    <a href="{% url 'product_detail' p.pk %}">
-                        {% if p.image %}
-                            <img src="{{ p.image.url }}" alt="{{ p.name }}" style="width:100%;height:160px;object-fit:cover;">
-                        {% else %}
-                            <img src="/static/placeholder.jpg" alt="Нет изображения" style="width:100%;height:160px;object-fit:cover;">
-                        {% endif %}
-                    </a>
-                    <h3 style="margin:8px 0 4px;">{{ p.name }}</h3>
-                    <div style="font-weight:600;">{{ p.price }} р.</div>
-                    <a href="{% url 'product_detail' p.pk %}">Подробнее</a>
-                </article>
+                <div class="col">
+                    <article class="card h-100">
+                        <a href="{% url 'product_detail' p.pk %}">
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}" alt="{{ p.name }}" class="card-img-top" style="height:180px;object-fit:cover;">
+                            {% else %}
+                                <img src="/static/placeholder.jpg" alt="Нет изображения" class="card-img-top" style="height:180px;object-fit:cover;">
+                            {% endif %}
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ p.name }}</h5>
+                            <div class="mb-2 fw-semibold">{{ p.price }} р.</div>
+                            <div class="mt-auto">
+                                <a class="btn btn-outline-primary btn-sm" href="{% url 'product_detail' p.pk %}">Подробнее</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
             {% endfor %}
         </div>
 
-        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="mt-3 d-flex gap-2 flex-wrap pagination justify-content-center">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}">Назад</a>
+                <a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}&q={{ query }}">Назад</a>
             {% endif %}
-            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            <span class="text-muted">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&q={{ query }}">Вперёд</a>
+                <a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.next_page_number }}&q={{ query }}">Вперёд</a>
             {% endif %}
         </div>
         {% else %}
-            <p>Нет доступных товаров.</p>
+            <div class="alert alert-info">Нет доступных товаров.</div>
         {% endif %}
     </section>
 </div>
