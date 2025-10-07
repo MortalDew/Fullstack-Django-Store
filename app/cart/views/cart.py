@@ -6,6 +6,8 @@ from django.views.decorators.http import require_POST
 from app.catalog.models import Product
 from .models import CartItem
 
+__all__ = ["cart_add", "cart_update", "cart_remove", "cart_detail"]
+
 
 @login_required
 @require_POST
