@@ -9,7 +9,6 @@
 schema.yaml
 .idea/
 dumps/
-static/
 profiles/
 media/
 logs/
