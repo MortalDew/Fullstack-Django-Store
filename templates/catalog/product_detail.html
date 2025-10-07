@@ -21,11 +21,17 @@
                 <span class="badge text-bg-danger">Нет в наличии</span>
             {% endif %}
         </div>
+        {% if request.user.is_authenticated %}
         <form method="post" action="/cart/add/{{ product.pk }}/" class="d-flex gap-2 align-items-center mt-2">
             {% csrf_token %}
             <input type="number" name="quantity" min="1" max="{{ product.stock }}" value="1" {% if product.stock <= 0 %}disabled{% endif %} class="form-control" style="max-width:100px;">
             <button type="submit" class="btn btn-primary" {% if product.stock <= 0 %}disabled{% endif %}>Добавить в корзину</button>
         </form>
+        {% else %}
+        <div class="d-flex gap-2 align-items-center mt-2">
+            <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-outline-primary">Войти, чтобы добавить в корзину</a>
+        </div>
+        {% endif %}
     </div>
 </article>
 {% endblock %}
