@@ -1,16 +1,18 @@
 from typing import Any
 from django.db.models import QuerySet, Q
+from app.base.cache import BaseDispatchCache
 from django.views.generic import ListView, DetailView
 from ..models import Product, Category
 
 __all__ = ["ProductListView", "ProductDetailView"]
 
 
-class ProductListView(ListView):
+class ProductListView(BaseDispatchCache, ListView):
     template_name = "catalog/product_list.html"
     model = Product
     context_object_name = "products"
     paginate_by = 8
+    cache_timeout = 120
 
     def get_queryset(self) -> QuerySet:
         queryset: QuerySet = Product.objects.select_related("category").all()

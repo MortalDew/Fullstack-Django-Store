@@ -1,10 +1,18 @@
-from .views import CART_SESSION_KEY
+from django.core.cache import cache
+from .models import CartItem
 
 
 def cart_item_count(request):
-    cart = request.session.get(CART_SESSION_KEY, {})
-    try:
-        count = sum(int(item.get("quantity", 0)) for item in cart.values())
-    except Exception:
-        count = 0
-    return {"cart_item_count": count}
+    if not request.user.is_authenticated:
+        return {"cart_item_count": 0}
+    cache_key = f"cart:count:user:{request.user.pk}"
+    count = cache.get(cache_key)
+    if count is None:
+        try:
+            count = sum(
+                item.quantity for item in CartItem.objects.filter(user=request.user)
+            )
+        except Exception:
+            count = 0
+        cache.set(cache_key, int(count), timeout=120)
+    return {"cart_item_count": int(count)}

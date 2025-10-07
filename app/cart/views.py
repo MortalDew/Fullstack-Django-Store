@@ -1,18 +1,10 @@
 from decimal import Decimal
+from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from app.catalog.models import Product
-
-CART_SESSION_KEY = "cart"
-
-
-def _get_cart(session) -> dict:
-    cart = session.get(CART_SESSION_KEY)
-    if cart is None:
-        cart = {}
-        session[CART_SESSION_KEY] = cart
-    return cart
+from .models import CartItem
 
 
 @login_required
@@ -25,17 +17,24 @@ def cart_add(request, product_id: int):
     if product.stock <= 0:
         return redirect("cart_detail")
 
-    cart = _get_cart(request.session)
-    key = str(product.pk)
-    existing_qty = int(cart.get(key, {}).get("quantity", 0))
-
-    # Cap by available stock
-    new_qty = existing_qty + max(quantity, 1)
-    if new_qty > product.stock:
-        new_qty = product.stock
-
-    cart[key] = {"quantity": new_qty, "price": str(product.price)}
-    request.session.modified = True
+    # Determine new quantity based on existing DB item
+    item, created = CartItem.objects.get_or_create(
+        user=request.user,
+        product=product,
+        defaults={
+            "quantity": max(1, min(quantity, product.stock)),
+            "price": product.price,
+        },
+    )
+    if not created:
+        new_qty = min(product.stock, item.quantity + max(1, quantity))
+        if new_qty != item.quantity or item.price != product.price:
+            item.quantity = new_qty
+            item.price = product.price
+            item.save(update_fields=["quantity", "price"])
+    # Invalidate cart caches for this user
+    cache.delete(f"cart:count:user:{request.user.pk}")
+    cache.delete(f"cart:items:user:{request.user.pk}")
     return redirect("cart_detail")
 
 
@@ -44,50 +43,53 @@ def cart_add(request, product_id: int):
 def cart_update(request, product_id: int):
     product = get_object_or_404(Product, pk=product_id)
     quantity = int(request.POST.get("quantity", 1))
-    cart = _get_cart(request.session)
-    key = str(product.pk)
-
     # Normalize to [0, stock]
     if quantity <= 0:
-        cart.pop(key, None)
+        CartItem.objects.filter(user=request.user, product=product).delete()
     else:
         capped = min(quantity, max(product.stock, 0))
         if capped <= 0:
-            cart.pop(key, None)
+            CartItem.objects.filter(user=request.user, product=product).delete()
         else:
-            cart[key] = {"quantity": capped, "price": str(product.price)}
-    request.session.modified = True
+            item, _ = CartItem.objects.get_or_create(
+                user=request.user,
+                product=product,
+                defaults={"quantity": capped, "price": product.price},
+            )
+            if item.quantity != capped or item.price != product.price:
+                item.quantity = capped
+                item.price = product.price
+                item.save(update_fields=["quantity", "price"])
+    cache.delete(f"cart:count:user:{request.user.pk}")
+    cache.delete(f"cart:items:user:{request.user.pk}")
     return redirect("cart_detail")
 
 
 @login_required
 @require_POST
 def cart_remove(request, product_id: int):
-    cart = _get_cart(request.session)
-    cart.pop(str(product_id), None)
-    request.session.modified = True
+    CartItem.objects.filter(user=request.user, product_id=product_id).delete()
+    cache.delete(f"cart:count:user:{request.user.pk}")
+    cache.delete(f"cart:items:user:{request.user.pk}")
     return redirect("cart_detail")
 
 
 @login_required
 def cart_detail(request):
-    cart = _get_cart(request.session)
-    product_ids = [int(pid) for pid in cart.keys()]
-    products = {p.pk: p for p in Product.objects.filter(pk__in=product_ids)}
+    cache_key = f"cart:items:user:{request.user.pk}"
+    db_items = cache.get(cache_key)
+    if db_items is None:
+        db_items = list(
+            CartItem.objects.filter(user=request.user).select_related("product")
+        )
+        cache.set(cache_key, db_items, timeout=120)
 
     items = []
     total = Decimal("0.00")
-    for pid, data in cart.items():
-        product = products.get(int(pid))
-        if not product:
-            continue
-        quantity = int(data.get("quantity", 0))
-        # Cap displayed quantity as well, in case stock changed
-        if quantity > product.stock:
-            quantity = product.stock
-            cart[str(product.pk)] = {"quantity": quantity, "price": str(product.price)}
-            request.session.modified = True
-        price = Decimal(str(data.get("price", product.price)))
+    for item in db_items:
+        product = item.product
+        quantity = min(item.quantity, max(product.stock, 0))
+        price = Decimal(str(item.price))
         line_total = price * quantity
         total += line_total
         items.append(
