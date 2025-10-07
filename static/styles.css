@@ -1,0 +1,23 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111;
+}
+
+/* Keep minimal overrides; Bootstrap handles nav styling */
+
+/* main container spacing is now handled by Bootstrap */
+
+/* Let Bootstrap style buttons */
+
+/* Let Bootstrap style forms */
+
+/* Tables are styled by Bootstrap */
+
+.active {
+    font-weight: 700;
+}

@@ -1,8 +1,15 @@
 # Core framework
-Django==5.0.7
+Django==5.2.7
 
 # PostgreSQL driver
 psycopg2-binary==2.9.9
 
 # Images for ImageField
 Pillow==10.4.0
+
+djangorestframework==3.16.1
+django-cors-headers==4.9.0
+drf-spectacular==0.28.0
+django-filter==25.2
+django-storages[google]==1.14.2
+django-redis==5.4.0
