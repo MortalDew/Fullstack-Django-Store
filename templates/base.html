@@ -7,21 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<header>
-    <nav>
-        <a href="/">GoldDecor</a>
-        <div style="margin-left:auto">
-            {% if user.is_authenticated %}
-                <span>{{ user.username }}</span>
-                <a href="/logout/">Выйти</a>
-            {% else %}
-                <a href="/login/">Войти</a>
-                <a href="/signup/">Регистрация</a>
-            {% endif %}
-            <a href="/cart/">Корзина</a>
-        </div>
-    </nav>
-</header>
+{% include "_nav.html" %}
 <main>
     {% block content %}{% endblock %}
 </main>
@@ -30,3 +16,4 @@
 </footer>
 </body>
 </html>
+

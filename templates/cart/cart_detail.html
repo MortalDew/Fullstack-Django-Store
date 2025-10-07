@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+<h1>Корзина</h1>
+{% if items %}
+<table>
+  <thead>
+    <tr>
+      <th>Товар</th>
+      <th>Цена</th>
+      <th>Количество</th>
+      <th>Сумма</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td><a href="{% url 'product_detail' item.product.pk %}">{{ item.product.name }}</a> <small>(в наличии: {{ item.stock }})</small></td>
+      <td>{{ item.price }} ₽</td>
+      <td>
+        <form method="post" action="{% url 'cart_update' item.product.pk %}">
+          {% csrf_token %}
+          <input type="number" min="0" max="{{ item.stock }}" name="quantity" value="{{ item.quantity }}" style="width:72px;">
+          <button type="submit">Обновить</button>
+        </form>
+      </td>
+      <td>{{ item.line_total }} ₽</td>
+      <td>
+        <form method="post" action="{% url 'cart_remove' item.product.pk %}">
+          {% csrf_token %}
+          <button type="submit">Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align:right;">Итого:</td>
+      <td colspan="2">{{ total }} ₽</td>
+    </tr>
+  </tfoot>
+</table>
+
+<form method="post" action="">
+  {% csrf_token %}
+  <label>Примечание (не сохраняется):</label><br>
+  <textarea name="note" rows="3" style="width:100%;">{{ note }}</textarea>
+  <div><button type="submit">Обновить примечание</button></div>
+</form>
+
+{% else %}
+<p>Корзина пуста.</p>
+{% endif %}
+{% endblock %}
