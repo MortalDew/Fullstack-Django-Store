@@ -10,15 +10,18 @@
 <header>
     <nav>
         <a href="/">GoldDecor</a>
-        <div style="margin-left:auto">
+        <div style="margin-left:auto; display:flex; gap:12px; align-items:center;">
             {% if user.is_authenticated %}
                 <span>{{ user.username }}</span>
-                <a href="/logout/">Выйти</a>
+                <form method="post" action="/logout/" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none;border:none;color:#06c;cursor:pointer;padding:0;">Выйти</button>
+                </form>
             {% else %}
                 <a href="/login/">Войти</a>
                 <a href="/signup/">Регистрация</a>
             {% endif %}
-            <a href="/cart/">Корзина</a>
+            <a href="/cart/">Корзина{% if cart_item_count %} ({{ cart_item_count }}){% endif %}</a>
         </div>
     </nav>
 </header>
